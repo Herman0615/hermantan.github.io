@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小康的爱情世界</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Tailwind to use class-based dark mode so it matches your portfolio -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+</head>
+
+<body
+    class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen p-4 transition-colors duration-300">
+
+    <!-- The Game Container "Card" -->
+    <div
+        class="flex flex-col items-center justify-center min-h-[400px] p-6 bg-green-900 dark:bg-green-950 rounded-2xl shadow-xl text-center max-w-2xl w-full transition-colors duration-300">
+        <h2 class="text-2xl font-bold mb-4 text-white transition-colors">小康的爱情世界</h2>
+
+        <!-- New Image Container (Hidden by default) -->
+        <img id="story-image"
+            class="hidden mb-6 rounded-xl max-h-64 object-cover shadow-lg mx-auto border-4 border-green-800 dark:border-green-900"
+            src="" alt="Story Scene"
+            onerror="this.src='https://via.placeholder.com/400x300/14532d/ffffff?text=Image+Not+Found'">
+
+        <p id="story-text" class="text-lg text-green-100 dark:text-green-200 mb-8 min-h-[80px] transition-colors">
+        </p>
+
+        <div id="choices-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+        </div>
+    </div>
+
+    <script>
+        // The Story Data Structure
+        const storyData = {
+            start: {
+                text: "经历着青春期的小康对一位女孩心动了，请问他应该做什么？",
+                options: [
+                    { label: "努力学习", next: "study" },
+                    { label: "积极健身", next: "workout" },
+                    { label: "保养护肤", next: "beauty" },
+                    { label: "顺其自然", next: "nothing" }
+                ]
+            },
+
+            study: {
+                text: "小康成为了一位学霸，并考获全级第一。他应该约女神去：",
+                options: [
+                    { label: "看电影", next: "movie" },
+                    { label: "逛街", next: "shopping" },
+                    { label: "打羽毛球", next: "badminton" },
+                    { label: "烛光晚餐", next: "restaurant" }
+                ]
+            },
+            movie: {
+                text: "请选择电影类型：",
+                options: [
+                    { label: "恐怖片", next: "fail_scared" },
+                    { label: "卡通", next: "fail_mature" },
+                    { label: "爱情片", next: "connect_restaurant1" },
+                    { label: "18+", next: "fail_18" } // Fixed next link to match ending block
+                ]
+            },
+            connect_restaurant1: {
+                text: "女神向往电影里的甜蜜爱情，邀请小康共进晚餐",
+                options: [
+                    { label: "下一步", next: "restaurant" }
+                ]
+            },
+            shopping: {
+                text: "小康由于太久没有锻炼，逛街时扭伤了脚，被送进了医院",
+                options: [
+                    { label: "下一步", next: "fail_hospital" }
+                ]
+            },
+            badminton: {
+                text: "小康因为沉迷学习，手脚不灵活，接不到女神的杀球，女神对她非常失望，他应该",
+                options: [
+                    { label: "苦练羽球", next: "train_badminton" },
+                    { label: "让女神教自己", next: "connect_restaurant2" },
+                    { label: "逃离现场", next: "fail_dissapointed" },
+                    { label: "躲在角落哭泣", next: "connect_restaurant3" }
+                ]
+            },
+            connect_restaurant2: {
+                text: "女神和小康的感情得到了升温，并邀请小康共进晚餐",
+                options: [
+                    { label: "下一步", next: "restaurant" }
+                ]
+            },
+            connect_restaurant3: {
+                text: "女神安慰小康，并打算请小康共进晚餐",
+                options: [
+                    { label: "下一步", next: "restaurant" }
+                ]
+            },
+            train_badminton: {
+                text: "有一天，女神来问小康数学题: 小康, 请问1+1等于多少, 我算不到, 请问你能帮帮我吗？",
+                options: [
+                    { label: "答案是1", next: "fail_stupid" },
+                    { label: "答案是5", next: "fail_stupid" },
+                    { label: "答案是11", next: "fail_stupid" },
+                    { label: "答案是2", next: "connect_restaurant4" }
+                ]
+            },
+            restaurant: {
+                text: "小康和女神到了一家高级餐厅，请问小康应该：",
+                options: [
+                    { label: "主动点餐", next: "fail_ask" },
+                    { label: "请女神先坐下", next: "option3" },
+                    { label: "问女神要吃什么", next: "fail_idea" },
+                    { label: "上洗手间", next: "fail_missing" }
+                ]
+            },
+            option3: {
+                text: "小康和女神到了一家高级餐厅，请问小康应该：",
+                options: [
+                    { label: "主动点餐", next: "fail_ask" },
+                    { label: "", next: "" }, // Can remove this if you want 3 buttons
+                    { label: "问女神要吃什么", next: "fail_idea" },
+                    { label: "上洗手间", next: "fail_missing" }
+                ]
+            },
+            connect_restaurant4: {
+                text: "女神被会打球又聪明的小康吸引住了，打算请小康共进晚餐",
+                options: [
+                    { label: "下一步", next: "restaurant" }
+                ]
+            },
+
+
+            workout: {
+                text: "有一天，女神来问小康数学题: 小康, 请问1+1等于多少, 我算不到, 请问你能帮帮我吗？",
+                options: [
+                    { label: "答案是1", next: "fail_stupid" },
+                    { label: "答案是5", next: "fail_stupid" },
+                    { label: "答案是11", next: "fail_stupid" },
+                    { label: "我不会", next: "start2" }
+                ]
+            },
+            start2: {
+                text: "经历着青春期的小康对一位女孩心动了，请问他应该做什么？",
+                options: [
+                    { label: "努力学习", next: "study" },
+                    { label: "积极健身", next: "fail_same" },
+                    { label: "保养护肤", next: "beauty" },
+                    { label: "顺其自然", next: "nothing" }
+                ]
+            },
+
+            beauty: {
+                text: "小康成为了一位校园男神，有一天女神跌倒了，他应该",
+                options: [
+                    { label: "扶起他", next: "fail_heavy" },
+                    { label: "当作看不见", next: "connect_workout1" },
+                    { label: "嘲笑他", next: "fail_laugh" },
+                    { label: "和她一起跌倒", next: "fail_injured" }
+                ]
+            },
+            connect_workout1: {
+                text: "小康的高冷吸引到了女神",
+                options: [
+                    { label: "下一步", next: "workout" }
+                ]
+            },
+
+            nothing: {
+                text: "小康浑浑噩噩地到了结婚年龄，妈妈为小康找了个对象结婚生子，小康表示",
+                options: [
+                    { label: "愿意", next: "ruhua" },
+                    { label: "非常愿意", next: "xiaohua" },
+                    { label: "随便", next: "ruhua" },
+                    { label: "我只爱女神", next: "start01" } //winning condition
+                ]
+            },
+            ruhua: {
+                text: "恭喜小康娶到了如花！",
+                image: "ruhua.jpg",
+                options: [
+                    { label: "下一步", next: "fail_wrong" }
+                ]
+            },
+            xiaohua: {
+                text: "恭喜小康娶到了小花！",
+                image: "xiaohua.jpg",
+                options: [
+                    { label: "下一步", next: "fail_wrong" }
+                ]
+            },
+            start01: {
+                text: "经历着青春期的小康对一位女孩心动了，请问他应该做什么？",
+                options: [
+                    { label: "努力学习", next: "study01" },
+                    { label: "积极健身", next: "workout" },
+                    { label: "保养护肤", next: "beauty" },
+                    { label: "顺其自然", next: "fail_nothing" }
+                ]
+            },
+            study01: {
+                text: "小康成为了一位学霸，并考获全级第一。他应该约女神去：",
+                options: [
+                    { label: "看电影", next: "movie" },
+                    { label: "逛街", next: "shopping" },
+                    { label: "打羽毛球", next: "badminton" },
+                    { label: "烛光晚餐", next: "restaurant01" }
+                ]
+            },
+            restaurant01: {
+                text: "小康和女神到了一家高级餐厅，请问小康应该：",
+                options: [
+                    { label: "主动点餐", next: "fail_ask" },
+                    { label: "请女神先坐下", next: "option3_01" },
+                    { label: "问女神要吃什么", next: "fail_idea" },
+                    { label: "上洗手间", next: "fail_missing" }
+                ]
+            },
+            option3_01: {
+                text: "小康和女神到了一家高级餐厅，请问小康应该：",
+                options: [
+                    { label: "主动点餐", next: "restaurant_confess" },
+                    { label: "", next: "" },
+                    { label: "问女神要吃什么", next: "fail_idea" },
+                    { label: "上洗手间", next: "fail_missing" }
+                ]
+            },
+            restaurant_confess: {
+                text: "小康豪迈地点了美食，女神吃的津津有味瞬间对小康产生了爱慕之情。小康想和女神告白，他应该：",
+                options: [
+                    { label: "送玫瑰花", next: "fail_old" },
+                    { label: "给女神比心", next: "win_game" },
+                    { label: "展示女神他的腹肌", next: "fail_weird" }, // FIXED COMMA HERE
+                    { label: "忍住冲动", next: "fail_wait" }
+                ]
+            },
+
+            // Endings
+            //movie
+            fail_mature: {
+                text: "女神嫌弃小康不够成熟",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+            fail_scared: {
+                text: "恐怖片过于惊恐，小康失禁在了裤子上",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+            fail_18: {
+                text: "女神嫌弃小康过于猥琐，偷偷跑走了",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+
+            //shopping
+            fail_hospital: {
+                text: "有一天, 小康昏睡了过去, 醒来时发现时光倒流到了18岁。。。",
+                options: [
+                    { label: "下一步", next: "start" }
+                ]
+            },
+
+            //badminton
+            fail_dissapointed: {
+                text: "女神对小康十分失望",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+
+            //restaurant
+            fail_ask: {
+                text: "女神生气小康没有询问自己的意见，愤怒的离开了",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+            fail_idea: {
+                text: "女神嫌小康毫无主见，愤怒地离开了",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+            fail_missing: {
+                text: "小康出来时发现女神不见了。",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+
+            //beauty
+            fail_heavy: {
+                text: "小康由于缺乏锻炼，扶不起女神，反而被女神压断了脊椎，被送进了医院",
+                options: [
+                    { label: "下一步", next: "fail_hospital" }
+                ]
+            },
+            fail_laugh: {
+                text: "就你这样还想追到女神？？？",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+            fail_injured: {
+                text: "小康重重地跌到了地上，摔断了脊椎，被送进了医院",
+                options: [
+                    { label: "下一步", next: "fail_hospital" }
+                ]
+            },
+
+            //workout
+            fail_same: {
+                text: "失败了不会吸取教训你要怎样成功？",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+            fail_stupid: {
+                text: "参考答案写的是2啊, 小康好笨, 我问别人去了",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+
+            //restaurant_confess
+            win_game: {
+                text: "游戏胜利！女神接受了小康的告白！",
+                options: [
+                    { label: "太简单了拜拜", next: "end" }
+                ]
+            },
+            fail_old: {
+                text: "女神嫌小康过于老土，拒绝了小康",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+            fail_weird: {
+                text: "你有病吗公共场合掀衣服？？？",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+            fail_wait: {
+                text: "人家都对你产生爱慕之情了你还在等什么？？？",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+
+            fail_wrong: {
+                text: "小康要娶的是女神",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+            fail_nothing: { // Added missing node explicitly referenced
+                text: "小康浑浑噩噩过了一生...",
+                options: [
+                    { label: "下一步", next: "fail_end" }
+                ]
+            },
+
+            fail_end: {
+                text: "游戏失败",
+                options: [
+                    { label: "我要逆袭", next: "start" },
+                    { label: "退出游戏", action: "close" }
+                ]
+            },
+            end: {
+                text: "感谢游玩！",
+                options: [
+                    { label: "再玩一次", next: "start" },
+                    { label: "退出游戏", action: "close" }
+                ]
+            }
+        };
+
+        // Function to render a specific scene
+        function renderScene(sceneKey) {
+            // Safety check in case of a missing link
+            if (!storyData[sceneKey]) {
+                console.error("Scene not found:", sceneKey);
+                sceneKey = 'start';
+            }
+
+            const scene = storyData[sceneKey];
+
+            // Update the text
+            document.getElementById('story-text').innerText = scene.text;
+
+            // Handle the Image (Show if exists, Hide if not)
+            const storyImage = document.getElementById('story-image');
+            if (scene.image) {
+                storyImage.src = scene.image;
+                storyImage.classList.remove('hidden');
+            } else {
+                storyImage.classList.add('hidden');
+                storyImage.src = "";
+            }
+
+            // Clear old buttons
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
+
+            // Create new buttons
+            scene.options.forEach(option => {
+                // Skip empty buttons
+                if (option.label === "") return;
+
+                const button = document.createElement('button');
+                button.innerText = option.label;
+
+                // NEW: Upgraded button styles with Dark Mode and special Hover/Active Reactions!
+                button.className = "px-4 py-3 bg-blue-900 border-2 border-transparent text-white rounded-xl hover:bg-blue-800 hover:border-yellow-400 hover:-translate-y-1 active:scale-95 cursor-pointer transition-all duration-300 font-bold shadow-md w-full";
+
+                // When clicked, check if it's a "close" action, otherwise render the next scene
+                if (option.action === "close") {
+                    button.onclick = () => {
+                        window.close();
+                        // Fallback text just in case the browser blocks the close action
+                        document.getElementById('story-text').innerText = "您可以安全地关闭这个标签页了。(You may safely close this tab.)";
+                        choicesContainer.innerHTML = '';
+                    };
+                } else {
+                    button.onclick = () => renderScene(option.next);
+                }
+
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        // Start the game by rendering the first scene
+        renderScene('start');
+    </script>
+</body>
+
+</html>
