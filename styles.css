@@ -1,0 +1,13 @@
+        /* CSS-based Language Toggle System (Upgraded to support both formats) */
+        body[data-lang="en"] .lang-cn, body[data-lang="en"] .lang.cn { display: none !important; }
+        body[data-lang="cn"] .lang-en, body[data-lang="cn"] .lang.en { display: none !important; }
+        
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        .dark ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #186775; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #071196; }
